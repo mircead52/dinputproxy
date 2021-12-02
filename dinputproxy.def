@@ -1,0 +1,5 @@
+LIBRARY   DINPUT8
+VERSION   65535.3
+EXPORTS
+   DirectInput8Create   @1
+   token                @2
