@@ -29,5 +29,5 @@ see included LICENSE file.
 
 dinputproxy contains the following third-party libraries:
 
-- [inih](https://github.com/benhoyt/inih), which is copyright © 2009 – 2020 Ben Hoyt and used under a BSD 3-clause license. (https://github.com/benhoyt/inih).
+- [inih](https://github.com/benhoyt/inih), which is copyright © 2009 – 2020 Ben Hoyt and used under a BSD 3-clause license.
 
