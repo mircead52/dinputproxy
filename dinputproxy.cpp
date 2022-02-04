@@ -262,105 +262,64 @@ extern "C" HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, R
             log_file = h;
     }
 
-    if (dllHandle == NULL)
+    if (dllHandle == NULL || dicreateep == NULL)
     {
         size_t count = 0;
-        wstrlist found_dlls;
-        wstrlist::const_iterator dlls_it;
 
         read_conf();
 
-        TCHAR *dllpath = new(std::nothrow) TCHAR[PATH_SZ]();
-        std::unique_ptr<TCHAR[]> auto_free_dllpath(dllpath);
-        TCHAR *filepath = NULL;
+        TCHAR* filepath = NULL;
         std::unique_ptr<TCHAR[]> auto_free_filepath;
 
-        if(dllpath == NULL)
-            return DIERR_OUTOFMEMORY;
-
-        if(configx.dllpath)
+        if (configx.dllpath)
         {
-            char *src = configx.dllpath;
+            char* src = configx.dllpath;
             mbstate_t state;
             filepath = new(std::nothrow) TCHAR[PATH_SZ]();
-            if(filepath == NULL)
-            return DIERR_OUTOFMEMORY;
+            if (filepath == NULL)
+                return DIERR_OUTOFMEMORY;
             auto_free_filepath.reset(filepath);
             filepath[0] = 0;
-            count = mbsrtowcs(filepath, (const char**)&src, PATH_SZ, &state);
-            if(count == 0 || count >= PATH_SZ)
+            if (sizeof(TCHAR) == sizeof(char))
             {
-            LogInfo("Unable to parse config value for DLL Path errinfo 0x%x\r\n",src ? *src : 0);
-            return DIERR_GENERIC;
+                _tcscpy(filepath, (TCHAR*)src);
             }
-            goto load_dll;
-        }
-
-        int ercd = GetWindowsDirectory(dllpath, PATH_SZ);
-        if(ercd == 0 || ercd >= PATH_SZ)
-        {
-            return DIERR_GENERIC;
-        }
-
-#if idx64
-        wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
-#else
-        isWOW64 = IsWow64();
-        if (isWOW64)
-        {
-            //wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
-            wcscat_s(dllpath, PATH_SZ, TEXT("\\SysWOW64"));
-        }
-        else
-        {
-            wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
-        }
-#endif
-        LogInfoW(L"Search for dinput8 dll in %s\r\n", dllpath);
-
-        {
-            find_dinput_file(dllpath, found_dlls, PATH_SZ);
-
-            if(found_dlls.size() == 0)
+            else
             {
-                LogInfo("SearchPath failed\r\n");
-                return DIERR_GENERIC;
-            }
-
-            //our first option is the dll placed in the root of system32 folder
-            found_dlls.emplace_front(L".\\dinput8.dll");
-
-            dlls_it = found_dlls.begin();
-            //dlls_it++;// dlls_it++;
-            filepath = const_cast<TCHAR*>(dlls_it->c_str());
-
-            if(configx.find_all_dlls && found_dlls.size() > 1)
-            {
-                wstrlist::const_iterator it;
-                for (it = found_dlls.begin(); it != found_dlls.end(); ++it)
+                count = mbsrtowcs(filepath, (const char**)&src, PATH_SZ, &state);
+                if (count == 0 || count >= PATH_SZ)
                 {
-                    LogInfoW(L"Found dll: %s\r\n", it->c_str());
+                    LogInfo("There is an error with the DLL Patch config value %d\r\n", count);
                 }
             }
         }
 
-    load_dll:
-        LogInfoW(L"Try loading system dinput8 dll: %s\r\n", filepath);
         //Load the dll and keep the handle to it
-        dllHandle = LoadLibraryEx(filepath, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
-        if(dllHandle == NULL)
+        if (filepath)
         {
-            if ((found_dlls.size() != 0) && (++dlls_it != found_dlls.end()))
+            LOGINFOTC("Try loading system dinput8 dll: %s\r\n", filepath);
+            dllHandle = LoadLibrary(filepath);
+            if (dllHandle == NULL)
             {
-                filepath = const_cast<TCHAR*>(dlls_it->c_str());
-                goto load_dll;
+                LogInfo("There was an error loading the dll. Check the config file and make sure the patch is correct. Aborting.\r\n");
+                return DIERR_GENERIC;
             }
-            return DIERR_GENERIC;
+        }
+        if (dllHandle == NULL)
+        {
+            LOGINFOTC("Try loading dinput8 from System32\r\n");
+            dllHandle = LoadLibraryEx(_T(".\\dinput8.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+            if (dllHandle == NULL)
+            {
+                LogInfo("There was an error loading the dll. Does it exist in Windows/System32? Aborting.\r\n");
+                return DIERR_GENERIC;
+            }
         }
 
         //Get pointer to our function using GetProcAddress:
         dicreateep = (dicreate_t)GetProcAddress(dllHandle, "DirectInput8Create");
-        DWORD *token_adr = (DWORD*)GetProcAddress(dllHandle, "token");
+        //And do some sanity check so that we don't load ourselves by mistake
+        DWORD* token_adr = (DWORD*)GetProcAddress(dllHandle, "token");
 
         if (dicreateep == NULL)
         {
@@ -369,14 +328,14 @@ extern "C" HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, R
             dllHandle = NULL;
             return DIERR_GENERIC;
         }
-        if(dicreateep == &DirectInput8Create)
+        if (dicreateep == &DirectInput8Create)
         {
             LogInfo("Recursive entrypoint for DirectInput8Create\r\n");
             FreeLibrary(dllHandle);
             dllHandle = NULL;
             return DIERR_GENERIC;
         }
-        if(token_adr != NULL && *token_adr == MY_TOKEN_VAL)
+        if (token_adr != NULL && *token_adr == MY_TOKEN_VAL)
         {
             LogInfo("Token detected, assuming recursive load\r\n");
             FreeLibrary(dllHandle);
@@ -388,23 +347,80 @@ extern "C" HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, R
     HRESULT hr = dicreateep(hinst, dwVersion, riidltf, (VOID**)&pDI, punkOuter);
     if (hr >= 0)
     {
-        if(pDI == 0)
+        if (pDI == 0)
             return DIERR_OUTOFMEMORY;
 
         REFIID uniguid = IID_IDirectInput8W;
-        if(0 == memcmp(&riidltf, &uniguid, sizeof(IID)))
+        if (0 == memcmp(&riidltf, &uniguid, sizeof(IID)))
         {
-              //UNICODE variant
-              *ppvOut = new DITestW((IDirectInput8W *)pDI);
+            //UNICODE variant
+            *ppvOut = new DITestW((IDirectInput8W*)pDI);
         }
         else
         {
-              *ppvOut = new DITestA((IDirectInput8A *)pDI);
+            *ppvOut = new DITestA((IDirectInput8A*)pDI);
         }
     }
 
     return hr;
 }
+
+#if 0
+//backup for this piece of code doing a manual search for the dll in the Windows directory; this should not be needed anymore since we can well the loader to look into System32 directly
+{
+    wstrlist found_dlls;
+    wstrlist::const_iterator dlls_it;
+
+    //this code manually searches for the dll in thw Windows directory
+    int ercd = GetWindowsDirectory(dllpath, PATH_SZ);
+    if (ercd == 0 || ercd >= PATH_SZ)
+    {
+        return DIERR_GENERIC;
+    }
+
+    #if idx64
+    wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
+    #else
+    isWOW64 = IsWow64();
+    if (isWOW64)
+    {
+        //wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
+        wcscat_s(dllpath, PATH_SZ, TEXT("\\SysWOW64"));
+    }
+    else
+    {
+        wcscat_s(dllpath, PATH_SZ, TEXT("\\WinSxS"));
+    }
+    #endif
+    LogInfoW(L"Search for dinput8 dll in %s\r\n", dllpath);
+
+    {
+        find_dinput_file(dllpath, found_dlls, PATH_SZ);
+
+        if (found_dlls.size() == 0)
+        {
+            LogInfo("SearchPath failed\r\n");
+            return DIERR_GENERIC;
+        }
+
+        //our first option is the dll placed in the root of system32 folder
+        found_dlls.emplace_front(L".\\dinput8.dll");
+
+        dlls_it = found_dlls.begin();
+        //dlls_it++;// dlls_it++;
+        filepath = const_cast<TCHAR*>(dlls_it->c_str());
+
+        if (configx.find_all_dlls && found_dlls.size() > 1)
+        {
+            wstrlist::const_iterator it;
+            for (it = found_dlls.begin(); it != found_dlls.end(); ++it)
+            {
+                LogInfoW(L"Found dll: %s\r\n", it->c_str());
+            }
+        }
+    }
+}
+#endif
 
 #define SEARCH_MAX_DEPTH 2
 

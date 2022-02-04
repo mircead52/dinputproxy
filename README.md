@@ -3,14 +3,15 @@ dinputproxy
 dinputproxy is a proxy dll for DirectInput8
 
 It allows blocking/blacklisting certain devices and device classes in DirectInput8.
-Also if XONE controller enumerates as 1st person, it can be made to appear similar to a X360 controller.
+Also if XONE controller enumerates as 1st person controller (I saw it at some point, buth then no longer; ¯\_(ツ)_/¯ ), it can be made to appear similar to a X360 controller.
 See dinput8.ini for available options.
 
-Personally i have used it in the game Bound by Flame, because the xbox controller was not recognized in-game. This was because the game accepted all HID devices in the system, and in my case some temperature drivers had an HID extension.
+Personally I have used it in the game Bound by Flame, because the xbox controller was not recognized in-game. This was because the game accepted all HID devices in the system, and in my case some laptop temperature drivers had an HID extension.
 
 By limiting the device querry to Mice, Keyboards and Gamecontroller IDs, problem was solved.
 
 Also I remember Dark Sould 3 not picking-up the controller when my BT mouse was paired, and I couldn't be bothered to turn it off. The dll solved the issue.
+In any case I have put in a blacklisting feature, where and unfortunate input device can also be hidden from the game (be it a mouse, a keyboard or any sort of device).
 
 Other notes
 -----------
@@ -18,9 +19,9 @@ N.A.
 
 Disclamer of liability
 ---------
-Some Anti-cheat solutions might flag this as cheating, so consider yourself warned. I personally try to avoid games with online coponent.
+Some Anti-cheat solutions might flag this as cheating, so consider yourself warned. I personally try to avoid games with online component.
 
-That being said, if you decide to use this tool, you are doing so at your own risk. I, and any persons involved in the development of this tool, cannot be held accountable for any damages caused by the use of this tool. I do not offer any advice on how anyone should use it or where to use it.
+That being said, if you decide to use this tool, you are doing so at your own risk. I, and any persons involved in the development of this tool, cannot be held accountable for any damages caused by the use of the tool. My opinions, as expressed here, should not be taken as advice to how, YOU, or any other person, should or should not use this software.
 
 Copyright
 ---------

@@ -42,6 +42,12 @@ void LogInfo(const char *format, ...);
 void LogInfo_static(const char *format, ...);
 void LogInfoW(const wchar_t *format, ...);
 
+#ifdef _UNICODE
+#define LOGINFOTC(F, ...) LogInfoW(_T(F), __VA_ARGS__)
+#else
+#define LOGINFOTC LogInfo
+#endif
+
 BOOL IsWow64(void);
 
 uint_t wchartoascii(char *dest, uint_t dest_sz, const wchar_t *src);
