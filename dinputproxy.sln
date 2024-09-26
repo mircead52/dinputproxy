@@ -1,12 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1300
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dinputproxy", "dinputproxy.vcxproj", "{0975F80D-14CB-4F2A-B8AF-B02751D8CF9A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{400BBB06-2523-4E8F-8D35-521628B50168} = {400BBB06-2523-4E8F-8D35-521628B50168}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "inih", "inih\inih.vcxproj", "{400BBB06-2523-4E8F-8D35-521628B50168}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Joystick", "DirectInputSamples\C++\Joystick\Joystick_11.vcxproj", "{43E20DBD-F46C-467E-A2D0-73B3708C4B72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,8 +36,19 @@ Global
 		{400BBB06-2523-4E8F-8D35-521628B50168}.Release|x64.Build.0 = Release|x64
 		{400BBB06-2523-4E8F-8D35-521628B50168}.Release|x86.ActiveCfg = Release|Win32
 		{400BBB06-2523-4E8F-8D35-521628B50168}.Release|x86.Build.0 = Release|Win32
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Debug|x64.ActiveCfg = Debug|x64
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Debug|x64.Build.0 = Debug|x64
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Debug|x86.ActiveCfg = Debug|Win32
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Debug|x86.Build.0 = Debug|Win32
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Release|x64.ActiveCfg = Release|x64
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Release|x64.Build.0 = Release|x64
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Release|x86.ActiveCfg = Release|Win32
+		{43E20DBD-F46C-467E-A2D0-73B3708C4B72}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6168647-CACC-40B9-8EB5-740C790D7411}
 	EndGlobalSection
 EndGlobal

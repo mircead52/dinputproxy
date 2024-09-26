@@ -56,5 +56,8 @@
     </None>
     <None Include="LICENSE" />
     <None Include="README.md" />
+    <None Include="dinput8.ini">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,8 +1,3 @@
-/* Copyright 2021 Mircea-Dacian Munteanu
- *
- * The Source Code is this file is released under the terms of the New BSD License,
- * see LICENSE file, or the project homepage: https://github.com/mircead52/dinputproxy
- */
 
 // The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the DINPUTPROXY_EXPORTS
